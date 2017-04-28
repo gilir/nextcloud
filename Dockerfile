@@ -115,7 +115,10 @@ VOLUME /data /config /apps2 /nextcloud/themes
 EXPOSE 9988
 
 LABEL description="A server software for creating file hosting services" \
-      nextcloud="Nextcloud v${NEXTCLOUD_VERSION}" \
-      maintainer="Wonderfall <wonderfall@targaryen.house>"
+      nextcloud_version="Nextcloud v${NEXTCLOUD_VERSION}" \
+      maintainer="Julien Lavergne <julien@lavergne.online>" \
+      maintainer_url="https://gogs.lavergne.online/gilir/rpi-nextcloud.git"
+      original_maintainer="Wonderfall <wonderfall@targaryen.house>" \
+      original_maintainer_url="https://github.com/Wonderfall/dockerfiles/tree/master/nextcloud"
 
 CMD ["run.sh"]
