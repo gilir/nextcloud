@@ -61,6 +61,7 @@ RUN BUILD_DEPS=" \
     php7-openssl \
     php7-ldap \
     php7-imap \
+    php7-iconv \
     php7-ftp \
     php7-pcntl \
     php7-exif \
