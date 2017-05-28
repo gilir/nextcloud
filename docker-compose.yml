@@ -1,24 +1,22 @@
 version: '2'
 
 services:
-  nextcloud:
+  nextcloud_2:
     image: gilir/rpi-nextcloud
     container_name: nextcloud
     restart: always
     environment:
-      - UID=991
-      - GID=991
+      - UID=902
+      - GID=902
       - UPLOAD_MAX_SIZE=10G
       - APC_SHM_SIZE=128M
       - OPCACHE_MEM_SIZE=128
       - CRON_PERIOD=15m
-      - TZ=Europe/Berlin
-    external_links:
-      - mysql-main
+      - TZ=Europe/Paris
     volumes:
-      - nextcloud_data:/data
-      - nextcloud_config:/config
-      - nextcloud_apps:/apps2
+      - nextcloud_2_data:/data
+      - nextcloud_2_config:/config
+      - nextcloud_2_apps:/apps2
     ports:
       - "9988:9988"
     networks:
@@ -32,9 +30,9 @@ networks:
       name: proxy-network
 
 volumes:
-  nextcloud_data:
+  nextcloud_2_data:
     external: true
-  nextcloud_apps:
+  nextcloud_2_apps:
     external: true
-  nextcloud_config:
+  nextcloud_2_config:
     external: true
