@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  nextcloud_2:
+    image: gilir/rpi-nextcloud:12.0.3
+    #container_name: nextcloud
+    #restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      labels:
+        - traefik.frontend.rule=Host:nextcloud.lavergne.online
+        - traefik.docker.network=proxy-network
+        - traefik.port=9988
+        - traefik.backend=nextcloud
+        - traefik.frontend.entryPoints=https,http
+    environment:
+      - UID=902
+      - GID=902
+      - UPLOAD_MAX_SIZE=10G
+      - APC_SHM_SIZE=128M
+      - OPCACHE_MEM_SIZE=128
+      - CRON_PERIOD=15m
+      - TZ=Europe/Paris
+    volumes:
+      - nextcloud_2_data:/data
+      - nextcloud_2_config:/config
+      - nextcloud_2_apps:/apps2
+    ports:
+      - "9988:9988"
+    networks:
+      - proxy-network
+
+networks:
+  proxy-network:
+    external:
+      name: proxy-network
+
+volumes:
+  nextcloud_2_data:
+    external: true
+  nextcloud_2_apps:
+    external: true
+  nextcloud_2_config:
+    external: true
