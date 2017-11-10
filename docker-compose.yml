@@ -22,7 +22,11 @@ services:
     networks:
       - proxy-network
     labels:
-      - "traefik.frontend.rule=Host:nextcloud.lavergne.online"
+      - traefik.frontend.rule=Host:nextcloud.lavergne.online
+      - traefik.docker.network=proxy-network
+      - traefik.port=9988
+      - traefik.backend=nextcloud
+      - traefik.frontend.entryPoints=https,http
 
 networks:
   proxy-network:
