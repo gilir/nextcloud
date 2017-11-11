@@ -1,8 +1,8 @@
 version: '2'
 
 services:
-  nextcloud_2:
-    image: gilir/rpi-nextcloud
+  nextcloud:
+    image: gilir/arm64-nextcloud
     container_name: nextcloud
     restart: always
     environment:
@@ -14,9 +14,9 @@ services:
       - CRON_PERIOD=15m
       - TZ=Europe/Paris
     volumes:
-      - nextcloud_2_data:/data
-      - nextcloud_2_config:/config
-      - nextcloud_2_apps:/apps2
+      - nextcloud_data:/data
+      - nextcloud_config:/config
+      - nextcloud_apps:/apps2
     ports:
       - "9988:9988"
     networks:
@@ -34,9 +34,9 @@ networks:
       name: proxy-network
 
 volumes:
-  nextcloud_2_data:
+  nextcloud_data:
     external: true
-  nextcloud_2_apps:
+  nextcloud_apps:
     external: true
-  nextcloud_2_config:
+  nextcloud_config:
     external: true
