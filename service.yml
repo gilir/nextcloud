@@ -1,14 +1,9 @@
 version: '3'
 
 services:
-  nextcloud_2:
-    image: gilir/rpi-nextcloud:12.0.3
-    #container_name: nextcloud
-    #restart: always
+  nextcloud:
+    image: gilir/rpi-nextcloud
     deploy:
-      resources:
-        limits:
-          cpus: '1.0'
       replicas: 1
       update_config:
         parallelism: 1
@@ -20,7 +15,7 @@ services:
         window: 120s
       labels:
         - traefik.frontend.rule=Host:nextcloud.lavergne.online
-        - traefik.docker.network=proxy-network
+        - traefik.docker.network=swarm-network
         - traefik.port=9988
         - traefik.backend=nextcloud
         - traefik.frontend.entryPoints=https,http
@@ -33,23 +28,35 @@ services:
       - CRON_PERIOD=15m
       - TZ=Europe/Paris
     volumes:
-      - nextcloud_2_data:/data
-      - nextcloud_2_config:/config
-      - nextcloud_2_apps:/apps2
+      - nextcloud_data:/data
+      - nextcloud_config:/config
+      - nextcloud_apps:/apps2
     ports:
-      - "9988:9988"
+      - 9988:9988
     networks:
-      - proxy-network
+      - swarm-network
 
 networks:
-  proxy-network:
+  swarm-network:
     external:
-      name: proxy-network
+      name: swarm-network
 
 volumes:
-  nextcloud_2_data:
-    external: true
-  nextcloud_2_apps:
-    external: true
+  nextcloud_data:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=192.168.1.100,rw,noatime,nolock
+      device: ":/config_nextcloud_data"
+  nextcloud_apps:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=192.168.1.100,rw,noatime,nolock
+      device: ":/config_nextcloud_apps"
   nextcloud_2_config:
-    external: true
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=192.168.1.100,rw,noatime,nolock
+      device: ":/config_nextcloud"
