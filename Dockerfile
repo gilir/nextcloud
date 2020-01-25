@@ -1,8 +1,16 @@
-FROM alpine:3.8
+FROM alpine:3.10
 
-ARG NEXTCLOUD_VERSION=15.0.2
-ARG GNU_LIBICONV_VERSION=1.15
-ARG PHP_SOURCES_VERSION=7.1.9
+# Upgrating the image first, to have the last version of all packages, and to
+# share the same layer accros the images
+RUN apk --no-cache upgrade \
+    && apk --no-cache add \
+       su-exec \
+       ca-certificates \
+    && update-ca-certificates
+
+ARG NEXTCLOUD_VERSION=17.0.0
+ARG GNU_LIBICONV_VERSION=1.16
+ARG PHP_SOURCES_VERSION=7.3.11
 ARG GPG_nextcloud="2880 6A87 8AE4 23A2 8372  792E D758 99B9 A724 937A"
 
 ENV UID=991 GID=991 \
@@ -29,6 +37,7 @@ RUN BUILD_DEPS=" \
     nginx \
     s6 \
     libressl \
+    openssl \
     ca-certificates \
     libsmbclient \
     samba-client \
@@ -73,8 +82,8 @@ RUN BUILD_DEPS=" \
  && cd /tmp && wget -q http://ftp.gnu.org/pub/gnu/libiconv/libiconv-${GNU_LIBICONV_VERSION}.tar.gz \
  && tar xzf libiconv-${GNU_LIBICONV_VERSION}.tar.gz && cd libiconv-${GNU_LIBICONV_VERSION} \
  && ./configure --prefix=/usr/local \
- && make && make install && libtool --finish /usr/local/lib && cd /tmp \
- && wget -q http://ch1.php.net/get/php-${PHP_SOURCES_VERSION}.tar.gz/from/this/mirror -O php7.tar.gz \
+ && make && make install && libtool --finish /usr/local/lib
+RUN cd /tmp && wget -q http://ch1.php.net/get/php-${PHP_SOURCES_VERSION}.tar.gz/from/this/mirror -O php7.tar.gz \
  && tar xzf php7.tar.gz && cd /tmp/php-${PHP_SOURCES_VERSION}/ext/iconv && phpize7 \
  && ./configure --with-iconv=/usr/local --with-php-config=/usr/bin/php-config7 \
  && make && cp modules/iconv.so /usr/lib/php7 && cd /tmp \

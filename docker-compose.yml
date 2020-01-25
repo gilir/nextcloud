@@ -1,42 +1,70 @@
-version: '2'
+version: '3'
 
 services:
   nextcloud:
-    image: gilir/arm64-nextcloud
-    container_name: nextcloud
-    restart: always
+    image: gilir/rpi-nextcloud
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 500M
+#      placement:
+#        constraints: [node.role == worker]
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      labels:
+        - traefik.frontend.rule=Host:nextcloud.lavergne.online
+        - traefik.docker.network=swarm-network
+        - traefik.port=9988
+        - traefik.backend=nextcloud
+        - traefik.frontend.entryPoints=https,http
     environment:
+#       - NEXTCLOUD_TRUSTED_DOMAINS="nextcloud.lavergne.online 192.168.1.10 192.168.1.11 192.168.1.12"
       - UID=902
       - GID=902
       - UPLOAD_MAX_SIZE=10G
       - APC_SHM_SIZE=128M
-      - OPCACHE_MEM_SIZE=128
+      - OPCACHE_MEM_SIZE=512
       - CRON_PERIOD=15m
       - TZ=Europe/Paris
     volumes:
+#       - nextcloud_apps:/var/www/html/custom_apps
+#       - nextcloud_data:/var/www/html/data
       - nextcloud_data:/data
       - nextcloud_config:/config
       - nextcloud_apps:/apps2
     ports:
-      - "9988:9988"
+      - 9988:9988
     networks:
-      - proxy-network
-    labels:
-      - traefik.frontend.rule=Host:nextcloud.lavergne.online
-      - traefik.docker.network=proxy-network
-      - traefik.port=9988
-      - traefik.backend=nextcloud
-      - traefik.frontend.entryPoints=https,http
+      - swarm-network
 
 networks:
-  proxy-network:
+  swarm-network:
     external:
-      name: proxy-network
+      name: swarm-network
 
 volumes:
   nextcloud_data:
-    external: true
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=192.168.1.100,rw,noatime,nolock
+      device: ":/config_nextcloud_data"
   nextcloud_apps:
-    external: true
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=192.168.1.100,rw,noatime,nolock
+      device: ":/config_nextcloud_apps"
   nextcloud_config:
-    external: true
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=192.168.1.100,rw,noatime,nolock
+      device: ":/config_nextcloud"
